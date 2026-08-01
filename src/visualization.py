@@ -1,89 +1,200 @@
-import matplotlib.pyplot as plt
+import plotly.express as px
+import plotly.graph_objects as go
 
-def plot_risk_return(
-        results,
-        max_sharpe=None,
-        min_variance=None,
-        frontier=None,
+
+def create_risk_return_plot(
+    results,
+    max_sharpe=None,
+    min_variance=None,
+    frontier=None,
 ):
     """
-    Plot simulated portfolios in risk-return space.
-
-    Parameters
-    ----------
-    results : pd.DataFrame
-        Simulated portfolio statistics.
+    Create an interactive Plotly risk-return scatter plot.
     """
 
-    plt.figure(figsize=(10, 6))
-
-    plt.scatter(
-        results["volatility"],
-        results["return"],
-        c=results["sharpe"],
-        cmap="viridis",
-        s=10,
+    fig = px.scatter(
+        results,
+        x="volatility",
+        y="return",
+        color="sharpe",
+        color_continuous_scale="Viridis",
+        opacity=0.75,
+        title="Portfolio Risk vs Return",
+        labels={
+            "volatility": "Portfolio Volatility",
+            "return": "Expected Annual Return",
+            "sharpe": "Sharpe Ratio",
+        },
+        hover_data={
+            "return": ":.4f",
+            "volatility": ":.4f",
+            "sharpe": ":.4f",
+        },
     )
 
+    
+    # Maximum Sharpe Portfolio
+    
+
     if max_sharpe is not None:
-        plt.scatter(
-            max_sharpe["volatility"],
-            max_sharpe["return"],
-            color="gold",
-            marker="*",
-            s=250,
-            label="Maximum Sharpe",
+        fig.add_trace(
+            go.Scatter(
+                x=[max_sharpe["volatility"]],
+                y=[max_sharpe["return"]],
+                mode="markers",
+                name="Maximum Sharpe",
+                marker=dict(
+                    color="red",
+                    size=18,
+                    symbol="star",
+                    line=dict(
+                        color="black",
+                        width=2,
+                    ),
+                ),
+                hovertemplate=(
+                    "<b>Maximum Sharpe Portfolio</b><br>"
+                    "Expected Return: %{y:.2%}<br>"
+                    "Volatility: %{x:.2%}<br>"
+                    f"Sharpe Ratio: {max_sharpe['sharpe']:.2f}"
+                    "<extra></extra>"
+                ),
+            )
         )
+
+   
+    # Minimum Variance Portfolio
+    
 
     if min_variance is not None:
-        plt.scatter(
-            min_variance["volatility"],
-            min_variance["return"],
-            color="red",
-            marker="o",
-            s=120,
-            label="Minimum Variance",
+        fig.add_trace(
+            go.Scatter(
+                x=[min_variance["volatility"]],
+                y=[min_variance["return"]],
+                mode="markers",
+                name="Minimum Variance",
+                marker=dict(
+                    color="green",
+                    size=18,
+                    symbol="diamond",
+                    line=dict(
+                        color="black",
+                        width=2,
+                    ),
+                ),
+                hovertemplate=(
+                    "<b>Minimum Variance Portfolio</b><br>"
+                    "Expected Return: %{y:.2%}<br>"
+                    "Volatility: %{x:.2%}<br>"
+                    f"Sharpe Ratio: {min_variance['sharpe']:.2f}"
+                    "<extra></extra>"
+                ),
+            )
         )
+
+    
+    # Efficient Frontier
+    
 
     if frontier is not None:
-        plt.plot(
-            frontier["volatility"],
-            frontier["return"],
-            color="black",
-            linewidth=2,
-            label="Efficient Frontier",
+        fig.add_trace(
+            go.Scatter(
+                x=frontier["volatility"],
+                y=frontier["return"],
+                mode="lines",
+                name="Efficient Frontier",
+                line=dict(
+                    color="black",
+                    width=4,
+                ),
+            )
         )
 
-    plt.legend()
-    plt.colorbar(label="Sharpe Ratio")
+    
+    # Layout
+    
 
-    plt.xlabel("Portfolio Volatility")
-    plt.ylabel("Expected Return")
-    plt.title("Simulated Portfolio Risk-Return")
+    fig.update_layout(
+        template="plotly_white",
+        title=dict(
+            text="Portfolio Risk vs Return",
+            x=0.5,
+            xanchor="center",
+        ),
+        xaxis_title="Portfolio Volatility",
+        yaxis_title="Expected Annual Return",
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+        ),
+        height=700,
+        width=1000,
+        hovermode="closest",
+        margin=dict(
+            l=60,
+            r=40,
+            t=80,
+            b=60,
+        ),
+    )
 
-    plt.show()
+    return fig
 
-def plot_portfolio_weights(
+
+def create_portfolio_weights_plot(
     portfolio,
     asset_names,
 ):
     """
-    Plot portfolio asset allocations.
+    Create an interactive Plotly bar chart
+    showing the optimal portfolio allocation.
     """
 
     weights = portfolio["weights"]
 
-    plt.figure(figsize=(8, 5))
-
-    plt.bar(
-        asset_names,
-        weights,
+    fig = px.bar(
+        x=asset_names,
+        y=weights,
+        text=[f"{weight:.2%}" for weight in weights],
+        labels={
+            "x": "Assets",
+            "y": "Portfolio Weight",
+        },
+        title="Maximum Sharpe Portfolio Allocation",
     )
 
-    plt.xlabel("Assets")
+    fig.update_traces(
+        textposition="outside",
+        marker_color="royalblue",
+        hovertemplate=(
+            "<b>%{x}</b><br>"
+            "Weight: %{y:.2%}"
+            "<extra></extra>"
+        ),
+    )
 
-    plt.ylabel("Weight")
+    fig.update_layout(
+        template="plotly_white",
+        title=dict(
+            text="Maximum Sharpe Portfolio Allocation",
+            x=0.5,
+            xanchor="center",
+        ),
+        xaxis_title="Assets",
+        yaxis_title="Portfolio Weight",
+        yaxis_tickformat=".0%",
+        showlegend=False,
+        height=600,
+        width=900,
+        margin=dict(
+            l=60,
+            r=40,
+            t=80,
+            b=60,
+        ),
+    )
 
-    plt.title("Portfolio Allocation")
-
-    plt.show()
+    return fig

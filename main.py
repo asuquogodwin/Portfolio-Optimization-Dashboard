@@ -13,8 +13,8 @@ from src.optimizer import (
 )
 
 from src.visualization import (
-    plot_risk_return,
-    plot_portfolio_weights,
+    create_risk_return_plot,
+    create_portfolio_weights_plot,
 )
 
 
@@ -90,18 +90,21 @@ def main():
 
     # Visualizations
 
-    plot_risk_return(
+    risk_return_fig = create_risk_return_plot(
         results,
         max_sharpe=max_sharpe,
         min_variance=min_variance,
         frontier=frontier,
     )
 
-    plot_portfolio_weights(
+    risk_return_fig.show()
+
+    weights_fig = create_portfolio_weights_plot(
         max_sharpe,
         asset_names,
     )
 
+    weights_fig.show()
 
 
 # Program Entry Point
