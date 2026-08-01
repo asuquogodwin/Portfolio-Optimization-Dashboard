@@ -184,10 +184,10 @@ def simulate_portfolios(
         )
 
         results.append({
-            "Return": portfolio_ret,
-            "Volatility": portfolio_vol,
-            "Sharpe": sharpe,
-            "Weights": weights,
+            "return": portfolio_ret,
+            "volatility": portfolio_vol,
+            "sharpe": sharpe,
+            "weights": weights,
         })
 
     return pd.DataFrame(results)
@@ -207,7 +207,7 @@ def maximum_sharpe_portfolio(results):
         Portfolio with maximum Sharpe Ratio.
     """
 
-    return results.loc[results["Sharpe"].idxmax()]
+    return results.loc[results["sharpe"].idxmax()]
 
 def minimum_variance_portfolio(results):
     """
@@ -224,5 +224,23 @@ def minimum_variance_portfolio(results):
         Portfolio with minimum volatility.
     """
 
-    return results.loc[results["Volatility"].idxmin()]
+    return results.loc[results["volatility"].idxmin()]
+
+def efficient_frontier(results):
+    """
+    Extract the efficient frontier from simulated portfolios.
+    """
+
+    sorted_results = results.sort_values("volatility")
+
+    frontier = []
+    max_return = float("-inf")
+
+    for _, row in sorted_results.iterrows():
+
+        if row["return"] > max_return:
+            frontier.append(row)
+            max_return = row["return"]
+
+    return pd.DataFrame(frontier)
 
