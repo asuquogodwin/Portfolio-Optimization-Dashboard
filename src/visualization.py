@@ -17,9 +17,8 @@ def create_risk_return_plot(
         x="volatility",
         y="return",
         color="sharpe",
-        color_continuous_scale="Viridis",
+        color_continuous_scale="Blues",
         opacity=0.75,
-        title="Portfolio Risk vs Return",
         labels={
             "volatility": "Portfolio Volatility",
             "return": "Expected Annual Return",
@@ -44,7 +43,7 @@ def create_risk_return_plot(
                 mode="markers",
                 name="Maximum Sharpe",
                 marker=dict(
-                    color="red",
+                    color="orange",
                     size=18,
                     symbol="star",
                     line=dict(
@@ -74,7 +73,7 @@ def create_risk_return_plot(
                 mode="markers",
                 name="Minimum Variance",
                 marker=dict(
-                    color="green",
+                    color="purple",
                     size=18,
                     symbol="diamond",
                     line=dict(
@@ -104,7 +103,7 @@ def create_risk_return_plot(
                 mode="lines",
                 name="Efficient Frontier",
                 line=dict(
-                    color="black",
+                    color="red",
                     width=4,
                 ),
             )
@@ -116,28 +115,23 @@ def create_risk_return_plot(
 
     fig.update_layout(
         template="plotly_white",
-        title=dict(
-            text="Portfolio Risk vs Return",
-            x=0.5,
-            xanchor="center",
-        ),
+        
         xaxis_title="Portfolio Volatility",
         yaxis_title="Expected Annual Return",
         legend=dict(
             orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="right",
-            x=1,
+            y=-0.22,
+            xanchor="center",
+            x=0.5,
         ),
-        height=700,
-        width=1000,
+        height=500,
+        width=700,
         hovermode="closest",
         margin=dict(
-            l=60,
-            r=40,
-            t=80,
-            b=60,
+            l=25,
+            r=25,
+            t=20,
+            b=25,
         ),
     )
 
@@ -163,7 +157,6 @@ def create_portfolio_weights_plot(
             "x": "Assets",
             "y": "Portfolio Weight",
         },
-        title="Maximum Sharpe Portfolio Allocation",
     )
 
     fig.update_traces(
@@ -178,23 +171,83 @@ def create_portfolio_weights_plot(
 
     fig.update_layout(
         template="plotly_white",
-        title=dict(
-            text="Maximum Sharpe Portfolio Allocation",
-            x=0.5,
-            xanchor="center",
-        ),
         xaxis_title="Assets",
         yaxis_title="Portfolio Weight",
         yaxis_tickformat=".0%",
         showlegend=False,
-        height=600,
-        width=900,
+        height=500,
+        width=700,
         margin=dict(
-            l=60,
-            r=40,
-            t=80,
-            b=60,
+            l=25,
+            r=25,
+            t=20,
+            b=25,
         ),
+    )
+
+    return fig
+
+def create_correlation_heatmap(correlation_matrix):
+    """
+    Create an interactive correlation heatmap.
+    """
+
+    fig = px.imshow(
+        correlation_matrix,
+        text_auto=".2f",
+        color_continuous_scale="RdBu_r",
+        zmin=-1,
+        zmax=1,
+        aspect="auto",
+    )
+
+    fig.update_layout(
+        template="plotly_white",
+        height=500,
+        width=500,
+        margin=dict(
+            l=25,
+            r=25,
+            t=20,
+            b=25,
+        ),
+        coloraxis_colorbar=dict(
+            title="Correlation",
+        ),
+    )
+
+    return fig
+
+def create_portfolio_growth_plot(portfolio_growth):
+    """
+    Create an interactive cumulative portfolio growth chart.
+    """
+
+    fig = px.line(
+        portfolio_growth,
+        x=portfolio_growth.index,
+        y="Portfolio Value",
+        labels={
+            "x": "Date",
+            "Portfolio Value": "Portfolio Value ($100 Initial Investment)",
+        },
+    )
+
+    fig.update_traces(
+        line=dict(width=3),
+    )
+
+    fig.update_layout(
+        template="plotly_white",
+        height=500,
+        width=700,
+        margin=dict(
+            l=25,
+            r=25,
+            t=20,
+            b=25,
+        ),
+        hovermode="x unified",
     )
 
     return fig
